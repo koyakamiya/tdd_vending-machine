@@ -141,7 +141,7 @@ work
 Thumbs.db
 
 # vscode
-.vscode/settings.json
+# .vscode/settings.json
 
 # logs
 logs
