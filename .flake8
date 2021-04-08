@@ -1,5 +1,5 @@
 [flake8]
-max-line-length=100
+max-line-length=120
 # Rules to ignore:
 # D200 One-line docstring should fit on one line with quotes
 # D400 First line should end with a period
