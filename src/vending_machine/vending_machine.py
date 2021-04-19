@@ -7,8 +7,10 @@ class VendingMachine:
     """This is vending machine class.  # TODO: refactoring"""
 
     def __init__(self):
-        pass
+        self.money_amount: int = 0
 
     def insert_money(self, money: Money):
         if not isinstance(money, Money):
             raise TypeError("this is not money.")
+
+        self.money_amount += money.value

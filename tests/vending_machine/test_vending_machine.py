@@ -15,3 +15,9 @@ def test_cannot_insert_int_into_vending_machine():
     not_money = 0
     with pytest.raises(TypeError):
         vending_machine.insert_money(not_money)
+
+
+def test_count_money_amount():
+    vending_machine = VendingMachine()
+    vending_machine.insert_money(Money.Y100)
+    assert vending_machine.money_amount == 100
