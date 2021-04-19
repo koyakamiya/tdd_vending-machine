@@ -3,6 +3,9 @@ name = "tdd_vending-machine"
 version = "0.1.0"
 description = ""
 authors = ["Koya Kamiya <koya_kamiya@albert2005.co.jp>"]
+packages = [
+    { include = "vending_machine", from = "src" }
+]
 
 [tool.poetry.dependencies]
 python = "^3.9"
