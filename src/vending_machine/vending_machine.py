@@ -16,6 +16,15 @@ class VendingMachine:
         self.money_amount += money.value
 
     def return_refund(self) -> list[Money]:
-        refund = self.money_amount
+        refund_value = self.money_amount
         self.money_amount = 0
-        return refund
+
+        refunds = []
+        # Memo: 異常系！
+        for cur_money_member in sorted(Money.members())[::-1]:
+            if refund_value >= cur_money_member:
+                n_money = refund_value // cur_money_member
+                refund_value -= cur_money_member * n_money
+                refunds += [Money(cur_money_member)] * n_money
+
+        return refunds

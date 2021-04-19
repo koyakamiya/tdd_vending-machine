@@ -18,3 +18,7 @@ class Money(IntEnum):
     Y2000 = 2000
     Y5000 = 5000
     Y10000 = 10000
+
+    @staticmethod
+    def members():
+        return [_.value for _ in Money.__members__.values()]

@@ -33,9 +33,13 @@ def test_count_total_money_amount():
 
 def test_return_refund():
     vending_machine = VendingMachine()
-    vending_machine.insert_money(Money.Y100)
+    vending_machine.insert_money(Money.Y10)
+    vending_machine.insert_money(Money.Y10)
+    vending_machine.insert_money(Money.Y10)
+    vending_machine.insert_money(Money.Y10)
     vending_machine.insert_money(Money.Y10)
     vending_machine.insert_money(Money.Y10)
 
-    assert vending_machine.return_refund() == 120
+    expected_refunds = [Money.Y50, Money.Y10]
+    assert vending_machine.return_refund() == expected_refunds
     assert vending_machine.money_amount == 0
