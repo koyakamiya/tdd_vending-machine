@@ -1,6 +1,14 @@
 from vending_machine.money import Money
 
 
+def test_cannot_create_2_yen():
+    assert "Y2" not in dir(Money)
+
+
+def test_cannot_create_0_yen():
+    assert "Y0" not in dir(Money)
+
+
 def test_create_1_yen():
     assert Money.Y1 == 1
 
