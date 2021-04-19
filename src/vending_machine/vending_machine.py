@@ -14,3 +14,8 @@ class VendingMachine:
             raise TypeError("this is not money.")
 
         self.money_amount += money.value
+
+    def return_refund(self) -> list[Money]:
+        refund = self.money_amount
+        self.money_amount = 0
+        return refund
