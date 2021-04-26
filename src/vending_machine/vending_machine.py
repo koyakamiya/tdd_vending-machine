@@ -15,12 +15,12 @@ class VendingMachine:
 
         self.money_amount += money.value
 
-    def return_refund(self) -> list[Money]:
+    def refund(self) -> list[Money]:
         refund_value = self.money_amount
         self.money_amount = 0
 
         refunds = []
-        # Memo: 異常系！
+        # Memo: Step1 の状況には未対応
         for cur_money_member in sorted(Money.members())[::-1]:
             if refund_value >= cur_money_member:
                 n_money = refund_value // cur_money_member
