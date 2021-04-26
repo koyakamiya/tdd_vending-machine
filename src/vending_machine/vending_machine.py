@@ -8,6 +8,13 @@ class VendingMachine:
 
     def __init__(self):
         self.money_amount: int = 0
+        self.acceptable_moneies: set[Money] = {
+            Money.Y10,
+            Money.Y50,
+            Money.Y100,
+            Money.Y500,
+            Money.Y1000,
+        }
 
     def insert_money(self, money: Money):
         if not isinstance(money, Money):
@@ -28,3 +35,6 @@ class VendingMachine:
                 refunds += [Money(cur_money_member)] * n_money
 
         return refunds
+
+    def check_acceptable_money_kind(self, money: Money):
+        return money in self.acceptable_moneies

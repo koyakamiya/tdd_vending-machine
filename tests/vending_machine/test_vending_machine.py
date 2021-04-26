@@ -43,3 +43,11 @@ def test_refund(vending_machine):
     expected_refunds = [Money.Y50, Money.Y10]
     assert vending_machine.refund() == expected_refunds
     assert vending_machine.money_amount == 0
+
+
+def test_is_acceptable_money_kind(vending_machine):
+    assert vending_machine.check_acceptable_money_kind(Money.Y10) is True
+
+
+def test_is_not_acceptable_money_kind(vending_machine):
+    assert vending_machine.check_acceptable_money_kind(Money.Y1) is False
