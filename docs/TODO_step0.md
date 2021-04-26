@@ -45,4 +45,4 @@
 - vending_machine.py
     - [x] return_refund()がスメルコードっぽい
 - test_vending_machine.py
-    - [ ] VendingMachine()の呼び出しをfixtureでまとめたい
+    - [x] VendingMachine()の呼び出しをfixtureでまとめたい
