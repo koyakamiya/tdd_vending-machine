@@ -37,3 +37,10 @@
 
 
     
+## リファクタリング
+
+- test_money.py
+    - [ ] Money.members()を実装したので、test_money.pyのテストをまとめる
+    - [ ] test_cannot_create_2_yen()もMoney.members()を使う
+- vending_machine.py
+    - [ ] return_refund()がスメルコードっぽい
