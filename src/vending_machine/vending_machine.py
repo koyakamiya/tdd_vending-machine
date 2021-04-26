@@ -8,7 +8,7 @@ class VendingMachine:
 
     def __init__(self):
         self.money_amount: int = 0
-        self.acceptable_moneies: set[Money] = {
+        self.acceptable_monies: set[Money] = {
             Money.Y10,
             Money.Y50,
             Money.Y100,
@@ -37,4 +37,4 @@ class VendingMachine:
         return refunds
 
     def check_acceptable_money_kind(self, money: Money):
-        return money in self.acceptable_moneies
+        return money in self.acceptable_monies
