@@ -11,3 +11,8 @@ class Request:
 @dataclass
 class InsertMoneyRequest(Request):
     money: Money
+
+
+@dataclass
+class RefundRequest(Request):
+    pass

@@ -9,5 +9,15 @@ class Response:
 
 
 @dataclass
+class EmptyResponse(Response):
+    pass
+
+
+@dataclass
 class ReturnMoneyResponse(Response):
     money: Money
+
+
+@dataclass
+class RefundResponse(Response):
+    refunds: list[Money]
