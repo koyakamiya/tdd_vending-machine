@@ -8,6 +8,7 @@ from enum import IntEnum
 class Money(IntEnum):
     """Money class for Japanese coins and bills."""
 
+    Y0 = 0
     Y1 = 1
     Y5 = 5
     Y10 = 10
