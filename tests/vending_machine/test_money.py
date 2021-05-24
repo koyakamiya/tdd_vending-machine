@@ -5,6 +5,7 @@ from vending_machine.money import Money
 
 def test_create_japanese_valid_money():
     JAPANESE_MONEY_KIND: Final[list[str]] = [
+        "Y0",
         "Y1",
         "Y5",
         "Y10",
