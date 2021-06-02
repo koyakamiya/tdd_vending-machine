@@ -1,7 +1,8 @@
 import pytest
 
+from vending_machine.juice_supplier import JuiceSupplier
 from vending_machine.money import Money
-from vending_machine.request import InsertMoneyRequest, RefundRequest
+from vending_machine.request import InsertMoneyRequest, RefundRequest, SupplyJuiceRequest
 from vending_machine.response import EmptyResponse, RefundResponse, ReturnMoneyResponse
 from vending_machine.vending_machine import VendingMachine
 
@@ -57,3 +58,16 @@ def test_is_acceptable_money_kind(vending_machine: VendingMachine):
 
 def test_is_not_acceptable_money_kind(vending_machine: VendingMachine):
     assert vending_machine.check_acceptable_money_kind(Money.Y1) is False
+
+
+def test_check_stock(vending_machine: VendingMachine):
+    js = JuiceSupplier({"cola": 120})
+    req = SupplyJuiceRequest(juice=js("cola"), qty=5)
+
+    _: EmptyResponse = vending_machine(req)
+    stock: dict[str, int] = vending_machine.stock
+
+    assert len(stock) == 1
+    assert "cola" in stock.keys()
+    assert stock["cola"] == 5
+    assert js.name2price["cola"] == 120

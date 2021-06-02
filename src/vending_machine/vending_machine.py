@@ -1,9 +1,11 @@
 """This is vending machine class.  # TODO: refactoring
 """
+from collections import defaultdict
 from enum import Enum, auto
 
+from vending_machine.juice import Juice
 from vending_machine.money import Money
-from vending_machine.request import InsertMoneyRequest, RefundRequest, Request
+from vending_machine.request import InsertMoneyRequest, RefundRequest, Request, SupplyJuiceRequest
 from vending_machine.response import EmptyResponse, RefundResponse, Response, ReturnMoneyResponse
 
 
@@ -26,6 +28,8 @@ class VendingMachine:
             Money.Y1000,
         }
 
+        self.stock = defaultdict(int)
+
     def __call__(self, req: Request) -> Response:
         # NOTE: request と response を分ける
 
@@ -34,6 +38,8 @@ class VendingMachine:
             self.accumulate_money(req.money)
         elif isinstance(req, RefundRequest):
             pass
+        elif isinstance(req, SupplyJuiceRequest):
+            self.supply_juice(req.juice, req.qty)
         else:
             raise NotImplementedError
 
@@ -49,6 +55,10 @@ class VendingMachine:
                 raise NotImplementedError
         if isinstance(req, RefundRequest):
             return RefundResponse(self.refund())
+        if isinstance(req, SupplyJuiceRequest):
+            return EmptyResponse()
+
+        raise NotImplementedError
 
     @property
     def money_amount(self) -> int:
@@ -81,3 +91,6 @@ class VendingMachine:
 
     def check_acceptable_money_kind(self, money: Money):
         return money in self.acceptable_money_kinds
+
+    def supply_juice(self, juice: Juice, qty: int):
+        self.stock[juice.name] += qty

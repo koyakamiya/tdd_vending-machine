@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from vending_machine.juice import Juice
 from vending_machine.money import Money
 
 
@@ -16,3 +17,9 @@ class InsertMoneyRequest(Request):
 @dataclass
 class RefundRequest(Request):
     pass
+
+
+@dataclass
+class SupplyJuiceRequest(Request):
+    juice: Juice
+    qty: int
