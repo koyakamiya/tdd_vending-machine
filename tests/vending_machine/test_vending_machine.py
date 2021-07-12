@@ -95,7 +95,7 @@ def test_is_not_available_by_insufficient_amount(vending_machine: VendingMachine
     vending_machine.is_available(js("cola")) == VendingMachineStatus.INSUFFICIENT_AMOUNT
 
 
-def test_is_available2(vending_machine: VendingMachine):
+def test_buy_cola(vending_machine: VendingMachine):
     js = JuiceSupplier({"cola": 120})
     reqs = [SupplyJuiceRequest(juice=js("cola"), qty=5), InsertMoneyRequest(money=Money.Y500)]
 
