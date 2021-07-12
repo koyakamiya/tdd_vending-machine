@@ -4,8 +4,7 @@ from collections import defaultdict
 from enum import Enum, auto
 
 from vending_machine.juice import Juice
-
-# from vending_machine.juice_supplier import JuiceSupplier
+from vending_machine.juice_supplier import JuiceSupplier
 from vending_machine.money import Money
 from vending_machine.request import InsertMoneyRequest, RefundRequest, Request, SupplyJuiceRequest
 from vending_machine.response import EmptyResponse, RefundResponse, Response, ReturnMoneyResponse
@@ -24,8 +23,7 @@ class VendingMachineStatus(Enum):
 class VendingMachine:
     """This is vending machine class.  # TODO: refactoring"""
 
-    # def __init__(self, juice_supplier: JuiceSupplier):
-    def __init__(self):
+    def __init__(self, juice_supplier: JuiceSupplier):
         """[summary]"""
         self.money_list: list[Money] = []
         self.unacceptable_money: Money = Money.Y0
@@ -38,7 +36,7 @@ class VendingMachine:
         }
 
         self.stock: defaultdict[str, int] = defaultdict(int)
-        # self.juice_supplier = juice_supplier
+        self.juice_supplier = juice_supplier
 
     def __call__(self, req: Request) -> Response:
         """[summary]
