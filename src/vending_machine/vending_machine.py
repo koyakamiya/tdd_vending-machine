@@ -2,12 +2,13 @@
 """
 from collections import defaultdict
 from enum import Enum, auto
+from typing import Tuple
 
 from vending_machine.juice import Juice
 from vending_machine.juice_supplier import JuiceSupplier
 from vending_machine.money import Money
 from vending_machine.request import InsertMoneyRequest, RefundRequest, Request, SupplyJuiceRequest
-from vending_machine.response import EmptyResponse, RefundResponse, Response, ReturnMoneyResponse
+from vending_machine.response import RefundResponse, Response, ReturnMoneyResponse
 
 
 class VendingMachineStatus(Enum):
@@ -18,6 +19,16 @@ class VendingMachineStatus(Enum):
     EMPTY_STOCK = auto()
     INSUFFICIENT_AMOUNT = auto()
     RETURN_JUICE_AND_REFUND = auto()
+
+
+class BuyError(RuntimeError):
+    """[summary]
+
+    Args:
+        RuntimeError ([type]): [description]
+    """
+
+    pass
 
 
 class VendingMachine:
@@ -71,14 +82,14 @@ class VendingMachine:
             if status == VendingMachineStatus.RETURN_UNACCEPTABLE_MONEY:
                 return ReturnMoneyResponse(self.return_money())
             elif status == VendingMachineStatus.RETURN_NOTHING:
-                return EmptyResponse()
+                return Response()
             else:
                 raise NotImplementedError
         if isinstance(req, RefundRequest):
             return RefundResponse(self.refund())
         if isinstance(req, SupplyJuiceRequest):
             # TODO: 在庫の最大数チェック
-            return EmptyResponse()
+            return Response()
 
         raise NotImplementedError
 
@@ -158,12 +169,50 @@ class VendingMachine:
         Args:
             juice_name (str): [description]
 
+        Raises:
+            BuyError: [description]
+            BuyError: [description]
+
         Returns:
             Juice: [description]
         """
+        # check
+        if self.stock.get(juice_name, 0) <= 0:
+            raise BuyError
+
+        if self.money_amount < self.juice_supplier(juice_name).price:
+            raise BuyError
+
+        return self.__buy(juice_name)
+
+    def __buy(self, juice_name: str) -> Juice:
+        """[summary]
+
+        Args:
+            juice_name (str): [description]
+
+        Returns:
+            Juice: [description]
+        """
+
+        def _allocate_coin(money_remain: int) -> Tuple[Money, int]:
+            for money in sorted(Money.members())[::-1]:
+                if money_remain >= money:
+                    return Money(money), money_remain - money
+            raise NotImplementedError
+
         self.stock[juice_name] -= 1
-        # TODO: money_listを減らす 6/23
-        return self.juice_supplier[juice_name]
+
+        juice = self.juice_supplier(juice_name)
+        money_remain = self.money_amount - juice.price
+        coins_remain = []
+        while money_remain > 0:
+            coin, money_remain = _allocate_coin(money_remain)
+            coins_remain.append(coin)
+
+        self.money_list = coins_remain
+
+        return juice
 
     def check_acceptable_money_kind(self, money: Money):
         """[summary]

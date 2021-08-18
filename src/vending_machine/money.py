@@ -21,5 +21,10 @@ class Money(IntEnum):
     Y10000 = 10000
 
     @staticmethod
-    def members():
+    def members() -> list[int]:
+        """[summary]
+
+        Returns:
+            list[int]: [description]
+        """
         return [_.value for _ in Money.__members__.values()]
