@@ -5,8 +5,8 @@ import pytest
 from vending_machine.juice import Juice
 from vending_machine.juice_supplier import JuiceSupplier
 from vending_machine.money import Money
-from vending_machine.request import InsertMoneyRequest, RefundRequest, SupplyJuiceRequest
-from vending_machine.response import RefundResponse, Response, ReturnMoneyResponse
+from vending_machine.request import BuyRequest, InsertMoneyRequest, RefundRequest, SupplyJuiceRequest
+from vending_machine.response import BuyResponse, RefundResponse, Response, ReturnMoneyResponse
 from vending_machine.vending_machine import BuyError, VendingMachine, VendingMachineStatus
 
 
@@ -143,3 +143,75 @@ def test_cannot_buy_cola_for_no_money(vending_machine_with_cola: VendingMachine)
 
     with pytest.raises(BuyError):
         vending_machine_with_cola.buy("cola")
+
+
+def test_send_buy_request(vending_machine_with_cola: VendingMachine):
+    juice = Juice("cola", 120)
+    reqs = [
+        SupplyJuiceRequest(juice=juice, qty=5),
+        InsertMoneyRequest(money=Money.Y100),
+        InsertMoneyRequest(money=Money.Y100),
+        BuyRequest(juice_name=juice.name),
+    ]
+    expected_juice = juice
+    expected_refunds = [
+        Money(50),
+        Money(10),
+        Money(10),
+        Money(10),
+    ]
+
+    for req in reqs[:3]:
+        _: Response = vending_machine_with_cola(req)
+    buy_response: Response = vending_machine_with_cola(reqs[3])
+
+    assert isinstance(buy_response, BuyResponse)
+    assert buy_response.juice == expected_juice
+    assert buy_response.refunds == expected_refunds
+
+
+def test_send_buy_request_when_no_refund(vending_machine_with_cola: VendingMachine):
+    juice = Juice("cola", 120)
+    another_juice = Juice("kirin_beer", 200)
+    reqs = [
+        SupplyJuiceRequest(juice=juice, qty=5),
+        SupplyJuiceRequest(juice=another_juice, qty=5),
+        InsertMoneyRequest(money=Money.Y100),
+        InsertMoneyRequest(money=Money.Y100),
+        InsertMoneyRequest(money=Money.Y10),
+        InsertMoneyRequest(money=Money.Y10),
+        InsertMoneyRequest(money=Money.Y10),
+        InsertMoneyRequest(money=Money.Y10),
+        BuyRequest(juice_name=juice.name),
+    ]
+    expected_juice = juice
+    expected_refunds = None
+
+    for req in reqs[:-1]:
+        _: Response = vending_machine_with_cola(req)
+    buy_response: Response = vending_machine_with_cola(reqs[-1])
+
+    assert isinstance(buy_response, BuyResponse)
+    assert buy_response.juice == expected_juice
+    assert buy_response.refunds == expected_refunds
+
+
+def test_send_buy_request_when_lack_money(vending_machine_with_cola: VendingMachine):
+    juice = Juice("cola", 120)
+    another_juice = Juice("kirin_beer", 200)
+    reqs = [
+        SupplyJuiceRequest(juice=juice, qty=5),
+        SupplyJuiceRequest(juice=another_juice, qty=5),
+        InsertMoneyRequest(money=Money.Y100),
+        BuyRequest(juice_name=juice.name),
+    ]
+    expected_juice = None
+    expected_refunds = None
+
+    for req in reqs[:-1]:
+        _: Response = vending_machine_with_cola(req)
+    buy_response: Response = vending_machine_with_cola(reqs[-1])
+
+    assert isinstance(buy_response, BuyResponse)
+    assert buy_response.juice == expected_juice
+    assert buy_response.refunds == expected_refunds

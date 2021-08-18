@@ -2,13 +2,13 @@
 """
 from collections import defaultdict
 from enum import Enum, auto
-from typing import Tuple
+from typing import Optional, Tuple
 
 from vending_machine.juice import Juice
 from vending_machine.juice_supplier import JuiceSupplier
 from vending_machine.money import Money
-from vending_machine.request import InsertMoneyRequest, RefundRequest, Request, SupplyJuiceRequest
-from vending_machine.response import RefundResponse, Response, ReturnMoneyResponse
+from vending_machine.request import BuyRequest, InsertMoneyRequest, RefundRequest, Request, SupplyJuiceRequest
+from vending_machine.response import BuyResponse, RefundResponse, Response, ReturnMoneyResponse
 
 
 class VendingMachineStatus(Enum):
@@ -63,19 +63,22 @@ class VendingMachine:
         Returns:
             Response: [description]
         """
-        # NOTE: request と response を分ける
+        self._hundle_request(req)
+        return self._get_response(req)
 
-        # requestの処理
+    def _hundle_request(self, req):
         if isinstance(req, InsertMoneyRequest):
             self.accumulate_money(req.money)
         elif isinstance(req, RefundRequest):
             pass
         elif isinstance(req, SupplyJuiceRequest):
             self.supply_juice(req.juice, req.qty)
+        elif isinstance(req, BuyRequest):
+            pass
         else:
             raise NotImplementedError
 
-        # responseの処理
+    def _get_response(self, req):
         if isinstance(req, InsertMoneyRequest):
             # TODO: ジュースを返すケースを考える
             status = self.check_status()
@@ -90,6 +93,12 @@ class VendingMachine:
         if isinstance(req, SupplyJuiceRequest):
             # TODO: 在庫の最大数チェック
             return Response()
+        if isinstance(req, BuyRequest):
+            try:
+                juice, refunds = self.buy(req.juice_name)
+                return BuyResponse(juice, refunds)
+            except BuyError:
+                return BuyResponse(None, None)
 
         raise NotImplementedError
 
@@ -163,7 +172,7 @@ class VendingMachine:
         self.money_list = []
         return refunds
 
-    def buy(self, juice_name: str) -> Juice:
+    def buy(self, juice_name: str) -> Tuple[Juice, Optional[list[Money]]]:
         """[summary]
 
         Args:
@@ -183,7 +192,13 @@ class VendingMachine:
         if self.money_amount < self.juice_supplier(juice_name).price:
             raise BuyError
 
-        return self.__buy(juice_name)
+        bought_juice = self.__buy(juice_name)
+        min_juice_price = min([v for v in self.juice_supplier.name2price.values()])
+        if min_juice_price <= self.money_amount:
+            return bought_juice, None
+
+        refunds, self.money_list = self.money_list, []
+        return bought_juice, refunds
 
     def __buy(self, juice_name: str) -> Juice:
         """[summary]
