@@ -18,7 +18,7 @@ class VendingMachineStatus(Enum):
     RETURN_UNACCEPTABLE_MONEY = auto()
     EMPTY_STOCK = auto()
     INSUFFICIENT_AMOUNT = auto()
-    RETURN_JUICE_AND_REFUND = auto()
+    IS_AVAILABLE_JUICE = auto()
 
 
 class BuyError(RuntimeError):
@@ -111,6 +111,19 @@ class VendingMachine:
         """
         return sum([_.value for _ in self.money_list])
 
+    @property
+    def available_drinks(self) -> set[str]:
+        """[summary]
+
+        Returns:
+            set[str]: [description]
+        """
+        return {
+            juice_name
+            for juice_name in self.stock
+            if self.is_available(self.juice_supplier(juice_name)) == VendingMachineStatus.IS_AVAILABLE_JUICE
+        }
+
     def check_status(self) -> VendingMachineStatus:
         """[summary]
 
@@ -137,7 +150,7 @@ class VendingMachine:
         if self.money_amount < juice.price:
             return VendingMachineStatus.INSUFFICIENT_AMOUNT
 
-        return VendingMachineStatus.RETURN_JUICE_AND_REFUND
+        return VendingMachineStatus.IS_AVAILABLE_JUICE
 
     def accumulate_money(self, money: Money):
         """[summary]

@@ -15,6 +15,11 @@ def vending_machine_with_cola() -> VendingMachine:
     return VendingMachine(JuiceSupplier({"cola": 120}))
 
 
+@pytest.fixture
+def vending_machine_with_cola_redbull_water() -> VendingMachine:
+    return VendingMachine(JuiceSupplier({"cola": 120, "redbull": 200, "water": 100}))
+
+
 def test_insert_money_into_vending_machine(vending_machine_with_cola: VendingMachine):
     req = InsertMoneyRequest(money=Money.Y1)
     res: Response = vending_machine_with_cola(req)
@@ -73,7 +78,7 @@ def test_is_available(vending_machine_with_cola: VendingMachine):
     for req in reqs:
         _: Response = vending_machine_with_cola(req)
 
-    vending_machine_with_cola.is_available(juice) == VendingMachineStatus.RETURN_JUICE_AND_REFUND
+    vending_machine_with_cola.is_available(juice) == VendingMachineStatus.IS_AVAILABLE_JUICE
 
 
 def test_is_not_available_by_empty_stock(vending_machine_with_cola: VendingMachine):
@@ -215,3 +220,67 @@ def test_send_buy_request_when_lack_money(vending_machine_with_cola: VendingMach
     assert isinstance(buy_response, BuyResponse)
     assert buy_response.juice == expected_juice
     assert buy_response.refunds == expected_refunds
+
+
+def test_check_menu_vending_machine_redbull_and_water(vending_machine_with_cola_redbull_water: VendingMachine):
+    cola = Juice("cola", 120)
+    redbull = Juice("redbull", 200)
+    water = Juice("water", 100)
+
+    expected_menu = defaultdict(int, {"cola": 5, "redbull": 5, "water": 5})
+
+    reqs = [
+        SupplyJuiceRequest(juice=cola, qty=5),
+        SupplyJuiceRequest(juice=redbull, qty=5),
+        SupplyJuiceRequest(juice=water, qty=5),
+    ]
+
+    for req in reqs:
+        _: Response = vending_machine_with_cola_redbull_water(req)
+
+    assert vending_machine_with_cola_redbull_water.stock == expected_menu
+
+
+def test_check_available_drinks_by_money(vending_machine_with_cola_redbull_water: VendingMachine):
+    cola = Juice("cola", 120)
+    redbull = Juice("redbull", 200)
+    water = Juice("water", 100)
+
+    expected_available_drinks = {"water"}
+
+    reqs = [
+        SupplyJuiceRequest(juice=cola, qty=5),
+        SupplyJuiceRequest(juice=redbull, qty=5),
+        SupplyJuiceRequest(juice=water, qty=5),
+        InsertMoneyRequest(money=Money.Y100),
+    ]
+
+    for req in reqs:
+        _: Response = vending_machine_with_cola_redbull_water(req)
+
+    assert vending_machine_with_cola_redbull_water.available_drinks == expected_available_drinks
+
+
+def test_check_available_drinks_by_empty_stock(vending_machine_with_cola_redbull_water: VendingMachine):
+    cola = Juice("cola", 120)
+    redbull = Juice("redbull", 200)
+    water = Juice("water", 100)
+
+    expected_available_drinks = {"cola", "redbull"}
+
+    reqs = [
+        SupplyJuiceRequest(juice=cola, qty=5),
+        SupplyJuiceRequest(juice=redbull, qty=5),
+        SupplyJuiceRequest(juice=water, qty=5),
+        InsertMoneyRequest(money=Money.Y1000),
+        BuyRequest(juice_name=water.name),
+        BuyRequest(juice_name=water.name),
+        BuyRequest(juice_name=water.name),
+        BuyRequest(juice_name=water.name),
+        BuyRequest(juice_name=water.name),
+    ]
+
+    for req in reqs:
+        _: Response = vending_machine_with_cola_redbull_water(req)
+
+    assert vending_machine_with_cola_redbull_water.available_drinks == expected_available_drinks
